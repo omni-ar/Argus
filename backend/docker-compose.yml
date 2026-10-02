@@ -1,0 +1,57 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: eth-validator-backend
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      BEACON_URL: ${BEACON_URL:-https://rpc.ankr.com/eth_beacon}
+      BEACONCHAIN_API: ${BEACONCHAIN_API:-https://beaconcha.in/api/v1}
+      BEACONCHAIN_API_V2: ${BEACONCHAIN_API_V2:-https://beaconcha.in/api/v2}
+      BEACONCHAIN_API_KEY: ${BEACONCHAIN_API_KEY}
+      REDIS_URL: redis://redis:6379
+      CACHE_TTL_SECONDS: ${CACHE_TTL_SECONDS:-3600}
+      VALIDATOR_INFO_CACHE_TTL_SECONDS: ${VALIDATOR_INFO_CACHE_TTL_SECONDS:-3600}
+      MIN_REQUEST_GAP_MS: ${MIN_REQUEST_GAP_MS:-1200}
+      EPOCHS_PAGE_SIZE: ${EPOCHS_PAGE_SIZE:-50}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      VALIDATOR_PUBKEYS: ${VALIDATOR_PUBKEYS:-}
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - validator-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: eth-validator-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - validator-net
+
+networks:
+  validator-net:
+    driver: bridge
+
+volumes:
+  redis-data:

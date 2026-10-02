@@ -1,0 +1,13 @@
+src/App.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/components/EpochTable.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/components/EpochTable.tsx(2,10): error TS1484: 'ValidatorResult' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/components/EpochTable.tsx(2,27): error TS1484: 'EpochData' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/components/EpochTable.tsx(5,1): error TS6133: 'formatDistanceToNow' is declared but its value is never read.
+src/components/ErrorAlert.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/components/Loader.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/components/TrendChart.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/components/TrendChart.tsx(12,10): error TS1484: 'ValidatorResult' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/components/ValidatorCard.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/components/ValidatorCard.tsx(2,10): error TS1484: 'ValidatorResult' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/components/ValidatorCard.tsx(3,48): error TS6133: 'CheckCircle2' is declared but its value is never read.
+src/hooks/useValidatorPerformance.ts(2,31): error TS1484: 'BatchPerformanceResponse' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.

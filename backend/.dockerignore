@@ -1,0 +1,31 @@
+# Build artifacts
+node_modules
+dist
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# Dev / editor
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test / CI
+coverage/
+.nyc_output
+
+# Docker files themselves (not needed in build context)
+Dockerfile
+docker-compose.yml
+docker-compose.*.yml

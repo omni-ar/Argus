@@ -1,0 +1,40 @@
+{
+  "name": "eth-validator-dashboard-backend",
+  "version": "1.0.0",
+  "description": "Ethereum Validator Performance Dashboard — backend API",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "nodemon --watch src --watch constants.ts --ext ts --exec \"node --loader ts-node/esm src/index.ts\"",
+    "build": "tsc",
+    "start": "node dist/src/index.js",
+    "pipeline": "node --loader ts-node/esm scripts/testPipeline.ts",
+    "pipeline:reconcile": "node --loader ts-node/esm scripts/reconciliation.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.13.6",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.3.1",
+    "ioredis": "^5.10.0",
+    "node-cache": "^5.1.2",
+    "prom-client": "^15.1.3",
+    "winston": "^3.19.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.4.0",
+    "nodemon": "^3.1.14",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  },
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
+  }
+}
