@@ -39,9 +39,9 @@ where $S_{\text{att}}$ denotes the assigned slot, $C$ the committee index, $\bet
 ```
 
 ### 1.1 The State Bloat & Verifiability Bottleneck
-Consensus participation flags (`TIMELY_SOURCE`, `TIMELY_TARGET`, `TIMELY_HEAD`) are officially calculated at epoch boundaries and stored in the beacon state:
+Consensus participation flags (`TIMELY_SOURCE`, `TIMELY_TARGET`, `TIMELY_HEAD`) are officially calculated at epoch boundaries and stored in the beacon state (`state.previous_epoch_participation`):
 
-$$\text{State Bitmap: } \mathcal{S}.\text{previous\_epoch\_participation}[i] \in \{0, 1\}^8$$
+$$\text{State Bitmap: } \mathcal{S}_{\text{participation}}[i] \in \{0, 1\}^8$$
 
 Querying this bitmap requires obtaining the full SSZ-serialized `BeaconState`. On Ethereum mainnet ($N \approx 947,834$ validators), the state payload scales as:
 
@@ -72,13 +72,13 @@ $$B_{\text{active}} = \sum_{j \in \mathcal{V}_{\text{active}}} B_{\text{eff}}(j)
 
 The network-wide base reward per increment is:
 
-$$\text{BaseRewardPerIncrement} = \left\lfloor \frac{\text{EFFECTIVE\_BALANCE\_INCREMENT} \times \text{BASE\_REWARD\_FACTOR}}{\lfloor\sqrt{B_{\text{active}}}\rfloor} \right\rfloor$$
+$$\text{BaseRewardPerIncrement} = \left\lfloor \frac{B_{\text{inc}} \times F_{\text{base}}}{\lfloor\sqrt{B_{\text{active}}}\rfloor} \right\rfloor$$
 
-where $\text{EFFECTIVE\_BALANCE\_INCREMENT} = 10^9\text{ Gwei}$ ($1\text{ ETH}$) and $\text{BASE\_REWARD\_FACTOR} = 64$. The validator's maximum base reward is:
+where $B_{\text{inc}} = 10^9\text{ Gwei}$ (`EFFECTIVE_BALANCE_INCREMENT`, $1\text{ ETH}$) and $F_{\text{base}} = 64$ (`BASE_REWARD_FACTOR`). The validator's maximum base reward is:
 
-$$\text{BaseReward}(i) = \left\lfloor \frac{B_{\text{eff}}(i)}{\text{EFFECTIVE\_BALANCE\_INCREMENT}} \right\rfloor \times \text{BaseRewardPerIncrement}$$
+$$\text{BaseReward}(i) = \left\lfloor \frac{B_{\text{eff}}(i)}{B_{\text{inc}}} \right\rfloor \times \text{BaseRewardPerIncrement}$$
 
-For each consensus duty $k \in \{\text{source}, \text{target}, \text{head}\}$, the reward earned ($R_k$) or penalty levied ($P_k$) is weighted against $\text{WEIGHT\_DENOMINATOR} = 64$:
+For each consensus duty $k \in \{\text{source}, \text{target}, \text{head}\}$, the reward earned ($R_k$) or penalty levied ($P_k$) is weighted against $W_{\text{denom}} = 64$ (`WEIGHT_DENOMINATOR`):
 
 $$R_{\text{source}} = \left\lfloor \frac{\text{BaseReward} \times 14}{64} \right\rfloor \cdot \mathbb{I}(\text{TimelySource})$$
 
@@ -97,7 +97,7 @@ $$\text{Condition}_{\text{src}} := (s.\text{epoch} == e - 1) \land (\delta \le 5
 
 $$\text{Condition}_{\text{tgt}} := (t.\text{epoch} == e) \land (\delta \le 32)$$
 
-**Proposition 1:** *On a finalizing chain where epoch finality distance $D \le 2$, verifying $(s.\text{epoch} == e-1) \land (t.\text{epoch} == e)$ is strictly equivalent to full cryptographic root verification $s.\text{root} == \mathcal{S}.\text{current\_justified\_checkpoint.root}$.*
+**Proposition 1:** *On a finalizing chain where epoch finality distance $D \le 2$, verifying $(s.\text{epoch} == e-1) \land (t.\text{epoch} == e)$ is strictly equivalent to full cryptographic root verification `s.root == state.current_justified_checkpoint.root`.*
 
 **Proof Sketch:**
 1. Casper FFG defines the source checkpoint as the most recent justified checkpoint. On a finalizing chain, epoch $e-1$ is finalized at slot $32e$, implying $e-1$ is uniquely justified.
@@ -318,8 +318,8 @@ This allows operators to trigger automated failovers to secondary backup nodes b
 
 Argus operates under explicit cryptographic and network assumptions:
 1. **Extended Inactivity Leaks:** If the chain fails to finalize for $>4$ epochs, Ethereum activates the inactivity leak penalty:
-   $$\text{Penalty} = \text{base\_reward} \times \text{inactivity\_score} / \text{INACTIVITY\_SCORE\_BIAS}$$
-   Argus does not currently model quadratic inactivity penalties during catastrophic network splits.
+   $$\text{Penalty} = \left\lfloor \frac{\text{BaseReward} \times \text{InactivityScore}}{c_{\text{bias}}} \right\rfloor$$
+   where $c_{\text{bias}}$ denotes `INACTIVITY_SCORE_BIAS`. Argus does not currently model quadratic inactivity penalties during catastrophic network splits.
 2. **Deep Reorganizations ($>32$ Slots):** If a reorg exceeds $32$ slots, attestations reference block roots that are purged from standard non-archival node memory, requiring an archival RPC fallback.
 3. **Slashing Equivocation:** Argus monitors attestation timeliness and correctness, but does not parse proposer double-votes or surround-vote slashing evidence.
 
